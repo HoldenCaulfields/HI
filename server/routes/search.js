@@ -8,7 +8,7 @@ router.post("/", async (req, res) => {
         const {userid, searchQuery} = req.body;
 
         //update user search query
-        await User.findByIdAndUpdate(userid, { $push: {search: searchQuery} }, { new: true });
+        await User.findByIdAndUpdate(userid, { $addToSet: {search: searchQuery} }, { new: true });
 
         //find users that match the searchQuery
         const matchedUsers = await User.find({search: searchQuery});

@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useContext } from "react";
 import AuthContext from "@/context/AuthContext";
+import logo from '@/public/mylogo.png';
+
 
 export default function Navbar() {
     const authContext = useContext(AuthContext);
@@ -10,7 +12,9 @@ export default function Navbar() {
     return (
         <nav className="bg-gray-900 text-white py-4">
             <div className="container mx-auto flex justify-between items-center px-6">
-                <Link href="/" className="text-2xl font-bold">HI</Link> {/*logo*/}
+                <Link href="/" className="text-2xl font-bold">
+                    <img src={logo.src} alt="logo" className="h-8 w-auto rounded-2xl" />
+                </Link> {/*logo*/}
 
                 <ul className="flex space-x-6">
                     <li><Link href="/" className="hover:text-gray-300">Home</Link></li>
