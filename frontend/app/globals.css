@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+:root {
+  --background: #F9F9F9;
+  --foreground: #333333;
+
+  --container: #FFFFFF;
+
+  --primary: #3b82f6;
+  --secondary: #64748b;
+
+  --text-light-primary: #333333;
+  --text-light-secondary: #777777;
+
+  --text-dark-primary: #E0E0E0;
+  --text-dark-secondary: #A0A0A0;
+
+  --container-light: #FFFFFF;
+  --container-dark: #1E1E1E;
+}
+
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+@keyframes blob {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, 40px) scale(0.9);
+  }
+}
+
+/* Các lớp animation-delay mới */
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+.animation-delay-6000 {
+  animation-delay: 6s;
+}
+/* Tốc độ hoạt hình chậm hơn */
+.animate-blob-slow {
+    animation: blob 15s infinite; /* Tăng thời gian từ 6s lên 15s */
+    animation-timing-function: ease-in-out;
+}

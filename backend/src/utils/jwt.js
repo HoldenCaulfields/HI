@@ -1,0 +1,8 @@
+import jwt from 'jsonwebtoken';
+import 'dotenv/config';
+
+function sign(user) {
+    return jwt.sign({ id: user._id, username: user.username }, process.env.JWT_SECRET, { expiresIn: '7d' });
+}
+
+export default sign;
