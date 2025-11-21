@@ -3,9 +3,9 @@
 import { useState } from "react";
 import {
   Users, TrendingUp, MessageCircle, Heart, Briefcase, UserPlus, Clock, Star, ArrowRight,
-  Zap, Globe, Code, BookOpen, Film, Sparkles,
-  Search
+  Globe, Code, BookOpen, Film, Sparkles, Search
 } from "lucide-react";
+import HeroBackground from "./components/HeroBackground";
 
 const ACTIVE_GROUPS = [
   {
@@ -51,19 +51,12 @@ const ACTIVE_GROUPS = [
 ];
 
 const TRENDING_SEARCHES = [
-  { keyword: "findjob", count: 1243, trend: "+23%" },
-  { keyword: "makefriend", count: 987, trend: "+18%" },
-  { keyword: "lonely", count: 756, trend: "+31%" },
-  { keyword: "lover", count: 654, trend: "+12%" },
-  { keyword: "boring", count: 543, trend: "+8%" },
-  { keyword: "tech", count: 432, trend: "+15%" }
-];
-
-const POPULAR_TOPICS = [
-  { title: "Find Job", icon: Briefcase, color: "from-blue-500 to-cyan-500", searches: "2.3K" },
-  { title: "Make Friends", icon: UserPlus, color: "from-black to-black", searches: "3.1K" },
-  { title: "Find Love", icon: Heart, color: "from-rose-500 to-red-500", searches: "1.8K" },
-  { title: "Just Chat", icon: MessageCircle, color: "from-green-500 to-emerald-500", searches: "4.2K" }
+  { keyword: "findjob", count: 1243, trend: "+23%", emoji: "💼" },
+  { keyword: "makefriend", count: 987, trend: "+18%", emoji: "🤝" },
+  { keyword: "lonely", count: 756, trend: "+31%", emoji: "💭" },
+  { keyword: "lover", count: 654, trend: "+12%", emoji: "💕" },
+  { keyword: "boring", count: 543, trend: "+8%", emoji: "😴" },
+  { keyword: "advice", count: 432, trend: "+15%", emoji: "💡" }
 ];
 
 const POPULAR_CATEGORIES = [
@@ -116,6 +109,7 @@ export default function Home() {
         <div className="absolute bottom-10 left-10 w-96 h-96 bg-purple-500/50 rounded-full filter blur-3xl opacity-15 animate-blob-slow animation-delay-4000"></div>
         <div className="absolute top-20 left-1/2 w-64 h-64 bg-blue-300/50 rounded-full filter blur-3xl opacity-10 animate-blob-slow animation-delay-6000"></div>
       </div>
+      <HeroBackground theme="movie" />
 
       <div className="relative z-10">
         {/* Navigation */}
@@ -140,9 +134,16 @@ export default function Home() {
           </div>
         </nav>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-0">
+          {/* Floating Elements Animation */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <div className="absolute top-20 left-1/4 w-16 h-16 bg-orange-400/30 rounded-full animate-float"></div>
+            <div className="absolute top-40 right-1/3 w-12 h-12 bg-teal-400/30 rounded-full animate-float-delayed"></div>
+            <div className="absolute bottom-40 left-1/3 w-20 h-20 bg-purple-400/30 rounded-full animate-float-slow"></div>
+          </div>
+
           {/* Hero Section */}
-          <div className="py-20 text-center">
+          <div className="py-20 text-center ">
             <h1 className="text-4xl md:text-7xl font-black mb-6 bg-black bg-clip-text text-transparent leading-tight">
               The journey is yours.<br />{`But you don’t have to walk it alone.`}
             </h1>
@@ -169,20 +170,29 @@ export default function Home() {
                     className="mx-2 px-4 md:px-8 py-3 bg-black text-white rounded-xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all flex items-center gap-2"
                   >
                     <Search />
-                   Search
+                    Search
                   </button>
                 </div>
               </div>
-              <p className="text-sm text-gray-500 mt-3">
-                💡 Try: "findjob", "makefriend", "lonely", or just enter a username
-              </p>
+              <div className="flex flex-wrap items-center justify-center gap-2 mt-4">
+                <span className="text-sm text-gray-500">Try:</span>
+                {["findjob 💼", "makefriend 🤝", "feeling lonely 💭", "need advice 🎯"].map((tag, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setSearchQuery(tag.split(' ')[0])}
+                    className="px-3 py-1.5 bg-white/80 backdrop-blur-sm hover:bg-white rounded-full text-sm font-medium text-gray-700 hover:text-orange-600 transition-all shadow-sm hover:shadow-md"
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
-          {/* Trending Searches */}
+          {/* Trending Now */}
           <div className="mb-16">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold flex items-center gap-2">
+              <h2 className="text-2xl font-bold flex items-center gap-2 backdrop-blur-sm">
                 <TrendingUp className="w-6 h-6 text-indigo-600" />
                 Trending Searches
               </h2>
@@ -192,112 +202,78 @@ export default function Home() {
                 <button
                   key={idx}
                   onClick={() => setSearchQuery(item.keyword)}
-                  className="bg-white rounded-xl p-4 hover:shadow-lg transition-all border border-gray-100 text-left group"
+                  className="bg-white/80 backdrop-blur-sm rounded-xl p-4 hover:shadow-xl transition-all border-2 border-gray-100 hover:border-orange-300 text-left group transform hover:-translate-y-1"
                 >
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-semibold text-gray-500">#{item.keyword}</span>
-                    <span className="text-xs font-bold text-green-600">{item.trend}</span>
+                    <span className="text-2xl">{item.emoji}</span>
+                    <span className="text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded-full">{item.trend}</span>
                   </div>
-                  <div className="text-2xl font-bold text-gray-800">{item.count}</div>
-                  <div className="text-xs text-gray-500 mt-1">searches today</div>
+                  <div className="text-sm font-bold text-gray-700 mb-1">#{item.keyword}</div>
+                  <div className="text-2xl font-black text-gray-800 group-hover:text-orange-600 transition-colors">{item.count}</div>
+                  <div className="text-xs text-gray-500 mt-1">people asking</div>
                 </button>
               ))}
             </div>
           </div>
 
-          {/* Popular Topics */}
+          {/* Live Conversations - Compact */}
           <div className="mb-16">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold flex items-center gap-2">
-                <Zap className="w-6 h-6 text-indigo-600" />
-                Popular Topics
+              <h2 className="text-2xl font-bold flex items-center gap-2 backdrop-blur-sm">
+                <UserPlus className="w-6 h-6 text-indigo-600" />
+                Live Conversations
               </h2>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {POPULAR_TOPICS.map((topic, idx) => (
-                <div
-                  key={idx}
-                  className="relative group cursor-pointer overflow-hidden rounded-2xl bg-white shadow-lg hover:shadow-2xl transition-all transform hover:scale-105"
-                >
-                  <div className={`absolute inset-0 bg-linear-to-br ${topic.color} opacity-90`}></div>
-                  <div className="relative p-8 text-white">
-                    <topic.icon className="w-12 h-12 mb-4" />
-                    <h3 className="text-2xl font-bold mb-2">{topic.title}</h3>
-                    <p className="text-sm opacity-90">{topic.searches} people searching</p>
-                    <ArrowRight className="w-6 h-6 mt-4 group-hover:translate-x-2 transition-transform" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Active Group Chats */}
-          <div className="mb-16">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold flex items-center gap-2">
-                <Users className="w-6 h-6 text-indigo-600" />
-                Active Group Chats
-              </h2>
-              <button className="text-indigo-600 font-semibold hover:text-indigo-700 flex items-center gap-1">
-                View All
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {ACTIVE_GROUPS.map((group, idx) => (
                 <div
                   key={idx}
-                  className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all border border-gray-100 group cursor-pointer"
+                  className="bg-white/80 backdrop-blur-sm rounded-xl overflow-hidden shadow-md hover:shadow-2xl transition-all border-2 border-gray-100  group cursor-pointer transform hover:-translate-y-1"
                 >
-                  <div className="relative h-48">
-                    <img src={group.image} alt={group.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                    <div className="absolute top-4 right-4 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1">
-                      <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-                      {group.online} online
+                  <div className="relative h-32">
+                    <img src={group.image} alt={group.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                    <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/30 to-transparent group-hover:scale-110 transition-transform duration-500"></div>
+                    <div className="absolute top-2 right-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full flex items-center gap-1">
+                      <div className="w-1.5 h-1.5 bg-white rounded-full "></div>
+                      {group.online}
+                    </div>
+                    <div className="absolute bottom-2 left-2 right-2">
+                      <h3 className="text-white font-bold text-sm truncate">{group.name}</h3>
                     </div>
                   </div>
-                  <div className="p-6">
-                    <h3 className="text-xl font-bold mb-2">{group.name}</h3>
-                    <p className="text-gray-600 text-sm mb-4">{group.description}</p>
-                    <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
+                  <div className="p-4">
+                    <p className="text-gray-600 text-xs mb-3 line-clamp-2">{group.description}</p>
+                    <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
                       <span className="flex items-center gap-1">
-                        <Users className="w-4 h-4" />
-                        {group.members.toLocaleString()} members
+                        <Users className="w-3 h-3" />
+                        {group.members.toLocaleString()}
                       </span>
                       <span className="flex items-center gap-1">
-                        <MessageCircle className="w-4 h-4" />
-                        {group.messages} messages
+                        <MessageCircle className="w-3 h-3" />
+                        {group.messages}
                       </span>
-                    </div>
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {group.tags.map((tag, i) => (
-                        <span key={i} className="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-full text-xs font-semibold">
-                          #{tag}
-                        </span>
-                      ))}
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-gray-500 flex items-center gap-1">
+                      <span className="flex items-center gap-1">
                         <Clock className="w-3 h-3" />
-                        Active {group.lastActive}
+                        {group.lastActive}
                       </span>
-                      <button className="px-4 py-2 bg-black text-white rounded-lg font-semibold text-sm hover:shadow-lg transform hover:scale-105 transition-all">
-                        Join Chat
-                      </button>
                     </div>
+                    <button className="w-full px-3 py-2 bg-black text-white rounded-lg font-bold text-sm hover:shadow-lg transform hover:scale-105 transition-all">
+                      Join Now
+                    </button>
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Popular Categories */}
+          {/* Explore by Categories */}
           <div className="mb-16">
-            <h2
-              className="text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 pb-4 flex items-center gap-2"
-            >
-              <Sparkles size={22} className="text-[#607AFB]" /> Explore by Category
-            </h2>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold flex items-center gap-2 backdrop-blur-sm">
+                <Sparkles className="w-6 h-6 text-indigo-600" />
+                Explore by Category
+              </h2>
+            </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 px-4">
               {POPULAR_CATEGORIES.map((category, index) => (
                 <div key={index} className="relative group overflow-hidden rounded-xl shadow-lg cursor-pointer transform hover:scale-[1.03] transition-transform duration-300">
@@ -315,14 +291,14 @@ export default function Home() {
           </div>
 
           {/* Top Answers */}
-          <div className="mb-16">
+          <div className="mb-16 ">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold flex items-center gap-2">
+              <h2 className="text-2xl font-bold flex items-center gap-2 backdrop-blur-sm">
                 <Star className="w-6 h-6 text-indigo-600" />
                 Top Rated Answers
               </h2>
             </div>
-            <div className="space-y-4">
+            <div className="space-y-4 backdrop-blur-sm">
               {TOP_ANSWERS.map((item, idx) => (
                 <div
                   key={idx}
@@ -369,24 +345,6 @@ export default function Home() {
           </div>
         </footer>
       </div>
-
-      <style jsx>{`
-        @keyframes blob {
-          0% { transform: translate(0px, 0px) scale(1); }
-          33% { transform: translate(30px, -50px) scale(1.1); }
-          66% { transform: translate(-20px, 20px) scale(0.9); }
-          100% { transform: translate(0px, 0px) scale(1); }
-        }
-        .animate-blob {
-          animation: blob 7s infinite;
-        }
-        .animation-delay-2000 {
-          animation-delay: 2s;
-        }
-        .animation-delay-4000 {
-          animation-delay: 4s;
-        }
-      `}</style>
     </div>
   );
 }
