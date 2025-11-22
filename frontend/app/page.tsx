@@ -2,10 +2,12 @@
 
 import { useState } from "react";
 import {
-  Users, TrendingUp, MessageCircle, Heart, Briefcase, UserPlus, Clock, Star, ArrowRight,
+  Users, TrendingUp, MessageCircle, Heart, UserPlus, Clock, Star, 
   Globe, Code, BookOpen, Film, Sparkles, Search
 } from "lucide-react";
 import HeroBackground from "./components/HeroBackground";
+import SearchPopup from "./components/SearchPopup";
+import SearchModal from "./proversion/SearchModal";
 
 const ACTIVE_GROUPS = [
   {
@@ -93,10 +95,11 @@ const TOP_ANSWERS = [
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showResults, setShowResults] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
-      setShowResults(true);
+      setIsOpen(true);
     }
   };
 
@@ -109,7 +112,7 @@ export default function Home() {
         <div className="absolute bottom-10 left-10 w-96 h-96 bg-purple-500/50 rounded-full filter blur-3xl opacity-15 animate-blob-slow animation-delay-4000"></div>
         <div className="absolute top-20 left-1/2 w-64 h-64 bg-blue-300/50 rounded-full filter blur-3xl opacity-10 animate-blob-slow animation-delay-6000"></div>
       </div>
-      <HeroBackground theme="movie" />
+      <HeroBackground />
 
       <div className="relative z-10">
         {/* Navigation */}
@@ -176,10 +179,10 @@ export default function Home() {
               </div>
               <div className="flex flex-wrap items-center justify-center gap-2 mt-4">
                 <span className="text-sm text-gray-500">Try:</span>
-                {["findjob 💼", "makefriend 🤝", "feeling lonely 💭", "need advice 🎯"].map((tag, i) => (
+                {["findjob 💼", "makefriend 🤝", "lonely 💭", "advice 🎯","love", "tech", "music", "movie"].map((tag, i) => (
                   <button
                     key={i}
-                    onClick={() => setSearchQuery(tag.split(' ')[0])}
+                    onClick={() => {setSearchQuery(tag.split(' ')[0]); setIsOpen(true);}}
                     className="px-3 py-1.5 bg-white/80 backdrop-blur-sm hover:bg-white rounded-full text-sm font-medium text-gray-700 hover:text-orange-600 transition-all shadow-sm hover:shadow-md"
                   >
                     {tag}
@@ -345,6 +348,18 @@ export default function Home() {
           </div>
         </footer>
       </div>
+
+      {/* <SearchPopup
+        isOpen={isOpen} 
+        onClose={() => setIsOpen(false)}
+        searchQuery={searchQuery}
+      /> */}
+      {/* The Cosmic Modal */}
+      <SearchModal 
+        isOpen={isOpen} 
+        onClose={() => setIsOpen(false)} 
+        query={searchQuery}
+      />
     </div>
   );
 }
