@@ -8,7 +8,7 @@ import initSockets from './src/sockets/index.js';
 dotenv.config();
 
 const server = http.createServer(app);
-const io = initSockets(server);
+initSockets(server);
 
 //connect mongodb:
 mongoose.connect(process.env.MONGO_URI)

@@ -6,8 +6,8 @@ import {
   Globe, Code, BookOpen, Film, Sparkles, Search
 } from "lucide-react";
 import HeroBackground from "./components/HeroBackground";
-import SearchPopup from "./components/SearchPopup";
 import SearchModal from "./proversion/SearchModal";
+import SearchModal2 from "./components/SearchModal2";
 
 const ACTIVE_GROUPS = [
   {
@@ -349,13 +349,8 @@ export default function Home() {
         </footer>
       </div>
 
-      {/* <SearchPopup
-        isOpen={isOpen} 
-        onClose={() => setIsOpen(false)}
-        searchQuery={searchQuery}
-      /> */}
       {/* The Cosmic Modal */}
-      <SearchModal 
+      <SearchModal
         isOpen={isOpen} 
         onClose={() => setIsOpen(false)} 
         query={searchQuery}

@@ -1,131 +1,47 @@
+'use client';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
+import { io, Socket } from 'socket.io-client';
 
-import React, { useEffect, useRef, useState } from 'react';
-import { GraphNode, GraphLink, NodeType, ThemeConfig } from './types';
+// Types
+enum NodeType {
+  ROOT = 'ROOT',
+  USER = 'USER',
+  GROUP = 'GROUP',
+  ANSWER = 'ANSWER'
+}
 
-// --- MOCK DATA GENERATOR ---
-const getThemeForQuery = (query: string): ThemeConfig => {
-  const q = query.toLowerCase().trim();
-  
-  if (q.includes('love') || q.includes('heart') || q.includes('date')) {
-    return {
-      name: 'Passion',
-      background: 'radial-gradient(circle at center, #4a0e16 0%, #1a0508 100%)',
-      nodeColors: {
-        ROOT: '#ff0055', ANSWER: '#ff6688', USER: '#ff99aa', GROUP: '#ff3366', KEYWORD: '#882244'
-      },
-      lineColor: '#ff0055', particleColor: '#ff99aa', fontColor: '#ffddee',
-      vibeDescription: "A nebula of emotions and connections."
-    };
-  }
-  if (q.includes('tech') || q.includes('code') || q.includes('ai')) {
-    return {
-      name: 'Cyberpunk',
-      background: 'linear-gradient(135deg, #020024 0%, #090979 35%, #00d4ff 100%)',
-      nodeColors: {
-        ROOT: '#00ffff', ANSWER: '#0099ff', USER: '#ffffff', GROUP: '#00cc99', KEYWORD: '#004466'
-      },
-      lineColor: '#00ffff', particleColor: '#00ffff', fontColor: '#ccffff',
-      vibeDescription: "The digital frontier. Data streams and neural links."
-    };
-  }
-  if (q.includes('job') || q.includes('work') || q.includes('career')) {
-    return {
-      name: 'Corporate',
-      background: 'linear-gradient(to bottom, #1e3c72, #2a5298)',
-      nodeColors: {
-        ROOT: '#ffffff', ANSWER: '#bbddff', USER: '#88aacc', GROUP: '#446688', KEYWORD: '#224466'
-      },
-      lineColor: '#ffffff', particleColor: '#aabbcc', fontColor: '#ffffff',
-      vibeDescription: "Professional network constellation."
-    };
-  }
-  if (q.includes('music') || q.includes('song') || q.includes('art')) {
-    return {
-      name: 'Neon',
-      background: 'linear-gradient(45deg, #2c3e50, #000000)',
-      nodeColors: {
-        ROOT: '#ff00ff', ANSWER: '#cc00cc', USER: '#ffff00', GROUP: '#00ff00', KEYWORD: '#660066'
-      },
-      lineColor: '#ff00ff', particleColor: '#ffff00', fontColor: '#ffffff',
-      vibeDescription: "Rhythm and visual harmony."
-    };
-  }
-  // Default Wild Theme
-  return {
-    name: 'Cosmos',
-    background: 'radial-gradient(circle at 50% 50%, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
-    nodeColors: {
-      ROOT: '#ffffff', ANSWER: '#e94560', USER: '#0f3460', GROUP: '#533483', KEYWORD: '#7a8b99'
-    },
-    lineColor: '#e94560', particleColor: '#ffffff', fontColor: '#ffffff',
-    vibeDescription: "The infinite void of knowledge."
+interface GraphNode {
+  id: string;
+  label: string;
+  type: NodeType;
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  radius: number;
+  color: string;
+  details?: string;
+}
+
+interface GraphLink {
+  source: string;
+  target: string;
+}
+
+interface ThemeConfig {
+  background?: string;
+  bgGradient?: string;
+  lineColor: string;
+  fontColor: string;
+  particleColor?: string;
+  vibeDescription: string;
+  nodeColors: {
+    ROOT: string;
+    USER: string;
+    GROUP: string;
+    ANSWER: string;
   };
-};
-
-const generateMockData = (query: string, width: number, height: number) => {
-  const theme = getThemeForQuery(query);
-  const center = { x: width / 2, y: height / 2 };
-  
-  const nodes: GraphNode[] = [];
-  const links: GraphLink[] = [];
-
-  // Root
-  nodes.push({
-    id: 'root', label: query.toUpperCase(), type: NodeType.ROOT,
-    x: center.x, y: center.y, vx: 0, vy: 0, radius: 40, val: 10,
-    color: theme.nodeColors.ROOT, details: `The singularity of "${query}".`
-  });
-
-  // Generators
-  const keywords = ['Future', 'Idea', 'Concept', 'Deep', 'Link', 'Source', 'Meaning', 'Trend'];
-  const answers = ['This is the way.', '42', 'It depends on context.', 'Search deeper within.', 'Connection found.'];
-  const users = ['Neo_99', 'Alice_W', 'Bot_X', 'Dr_Strange', 'Seeker01'];
-  const groups = ['The Thinkers', 'General Chat', 'Deep Dive'];
-
-  // Helper to add node
-  const addNode = (label: string, type: NodeType, parentId: string, dist: number) => {
-    const angle = Math.random() * Math.PI * 2;
-    const id = Math.random().toString(36).substr(2, 9);
-    const r = type === NodeType.ANSWER ? 25 : type === NodeType.KEYWORD ? 15 : 20;
-    
-    nodes.push({
-      id, label, type,
-      x: center.x + Math.cos(angle) * dist,
-      y: center.y + Math.sin(angle) * dist,
-      vx: (Math.random() - 0.5) * 2,
-      vy: (Math.random() - 0.5) * 2,
-      radius: r, val: r / 5,
-      color: theme.nodeColors[type],
-      details: `A ${type.toLowerCase()} node related to ${query}.`,
-      img: type === NodeType.USER ? `https://api.dicebear.com/7.x/avataaars/svg?seed=${label}` : undefined
-    });
-    links.push({ source: parentId, target: id, value: 1 });
-    return id;
-  };
-
-  // Generate Orbit 1: Answers & Groups
-  [...groups, ...answers].forEach((item, i) => {
-    const type = groups.includes(item) ? NodeType.GROUP : NodeType.ANSWER;
-    const id = addNode(item, type, 'root', 150 + Math.random() * 50);
-    
-    // Generate Orbit 2: Users & Keywords attached to Orbit 1
-    const subCount = Math.floor(Math.random() * 3) + 1;
-    for(let j=0; j<subCount; j++) {
-      const isUser = Math.random() > 0.5;
-      const label = isUser ? users[Math.floor(Math.random() * users.length)] : keywords[Math.floor(Math.random() * keywords.length)];
-      addNode(label + `_${i}${j}`, isUser ? NodeType.USER : NodeType.KEYWORD, id, 80);
-    }
-  });
-
-  // Add some random stray keywords connected to root
-  for(let k=0; k<5; k++) {
-      addNode(keywords[k] || 'Data', NodeType.KEYWORD, 'root', 250);
-  }
-
-  return { nodes, links, theme };
-};
-
-// --- COMPONENT ---
+}
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -135,51 +51,117 @@ interface SearchModalProps {
 
 const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, query }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [data, setData] = useState<{nodes: GraphNode[], links: GraphLink[], theme: ThemeConfig} | null>(null);
+  const physicsState = useRef<{ nodes: GraphNode[], links: GraphLink[], theme: ThemeConfig | null }>({
+    nodes: [],
+    links: [],
+    theme: null
+  });
+  const [uiTheme, setUiTheme] = useState<ThemeConfig | null>(null);
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
   const requestRef = useRef<number | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
+  const socketRef = useRef<Socket | null>(null);
   const dragNode = useRef<GraphNode | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
-  // Initialize Universe
+  // Physics constants
+  const PHYSICS = {
+    K_REPULSION: 2000,
+    K_SPRING: 0.01,
+    SPRING_LEN: 100,
+    DAMPING: 0.92,
+    CENTER_PULL: 0.002,
+    DISTANCE_THRESHOLD: 400
+  };
+
+  // Connect to Backend
   useEffect(() => {
     if (isOpen && query) {
-      const { innerWidth, innerHeight } = window;
-      const newData = generateMockData(query, innerWidth, innerHeight);
-      setData(newData);
-      setSelectedNode(null);
+      // Connect to separate Express server on port 4000
+      socketRef.current = io('http://localhost:4000');
+      
+      socketRef.current.emit('join_universe', query);
+
+      socketRef.current.on('init_data', (data: { nodes: GraphNode[], links: GraphLink[], theme: ThemeConfig }) => {
+        const { innerWidth, innerHeight } = window;
+        
+        // Initialize physics state
+        physicsState.current = {
+          nodes: data.nodes.map(n => ({
+            ...n,
+            // Ensure positions exist or randomize if missing
+            x: n.x || innerWidth / 2 + (Math.random() - 0.5) * 200,
+            y: n.y || innerHeight / 2 + (Math.random() - 0.5) * 200,
+            vx: n.vx || (Math.random() - 0.5) * 2,
+            vy: n.vy || (Math.random() - 0.5) * 2,
+          })),
+          links: data.links,
+          theme: data.theme
+        };
+        
+        setUiTheme(data.theme);
+        setSelectedNode(null);
+      });
+
+      socketRef.current.on('node_moved', (data: { nodeId: string, x: number, y: number }) => {
+        const target = physicsState.current.nodes.find(n => n.id === data.nodeId);
+        if (target && target !== dragNode.current) {
+          target.x = data.x;
+          target.y = data.y;
+          // Add slight energy to simulate impact
+          target.vx += (Math.random() - 0.5);
+          target.vy += (Math.random() - 0.5);
+        }
+      });
+
+      return () => {
+        if (socketRef.current) {
+          socketRef.current.disconnect();
+        }
+      };
     }
   }, [isOpen, query]);
 
-  // Physics Engine & Render Loop
+  // Resize canvas
   useEffect(() => {
-    if (!isOpen || !data || !canvasRef.current) return;
+    if (!canvasRef.current) return;
+    
+    const updateSize = () => {
+      const canvas = canvasRef.current;
+      if (canvas) {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+    };
+    
+    updateSize();
+    window.addEventListener('resize', updateSize);
+    return () => window.removeEventListener('resize', updateSize);
+  }, []);
+
+  // Physics & render loop
+  useEffect(() => {
+    if (!isOpen || !canvasRef.current) return;
 
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const nodes = data.nodes;
-    const links = data.links;
-    const theme = data.theme;
-
-    // Physics Constants
-    const K_REPULSION = 2000;
-    const K_SPRING = 0.01;
-    const SPRING_LEN = 100;
-    const DAMPING = 0.92;
-    const CENTER_PULL = 0.002;
-
     const animate = () => {
       const width = canvas.width;
       const height = canvas.height;
+      const { nodes, links, theme } = physicsState.current;
+
+      if (!theme) {
+        requestRef.current = requestAnimationFrame(animate);
+        return;
+      }
 
       ctx.clearRect(0, 0, width, height);
 
       // 1. Calculate Forces
       nodes.forEach(node => {
-        if (node === dragNode.current) return; // Skip physics for dragged node
-
+        if (node === dragNode.current) return;
+        
         let fx = 0, fy = 0;
 
         // Repulsion
@@ -189,30 +171,33 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, query }) => 
           const dy = node.y - other.y;
           const distSq = dx * dx + dy * dy || 1;
           const dist = Math.sqrt(distSq);
-          const force = K_REPULSION / distSq;
-          fx += (dx / dist) * force;
-          fy += (dy / dist) * force;
+
+          // Optimization: ignore distant nodes
+          if (dist < PHYSICS.DISTANCE_THRESHOLD) {
+            const force = PHYSICS.K_REPULSION / distSq;
+            fx += (dx / dist) * force;
+            fy += (dy / dist) * force;
+          }
         });
 
-        // Center Gravity
-        fx += (width / 2 - node.x) * CENTER_PULL;
-        fy += (height / 2 - node.y) * CENTER_PULL;
+        // Center gravity
+        fx += (width / 2 - node.x) * PHYSICS.CENTER_PULL;
+        fy += (height / 2 - node.y) * PHYSICS.CENTER_PULL;
 
-        // Apply to Velocity
-        node.vx = (node.vx + fx) * DAMPING;
-        node.vy = (node.vy + fy) * DAMPING;
+        node.vx = (node.vx + fx) * PHYSICS.DAMPING;
+        node.vy = (node.vy + fy) * PHYSICS.DAMPING;
       });
 
-      // Spring Forces
+      // Spring forces
       links.forEach(link => {
         const source = nodes.find(n => n.id === link.source);
         const target = nodes.find(n => n.id === link.target);
+        
         if (source && target) {
           const dx = target.x - source.x;
           const dy = target.y - source.y;
-          const dist = Math.sqrt(dx*dx + dy*dy) || 1;
-          const force = (dist - SPRING_LEN) * K_SPRING;
-          
+          const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+          const force = (dist - PHYSICS.SPRING_LEN) * PHYSICS.K_SPRING;
           const fx = (dx / dist) * force;
           const fy = (dy / dist) * force;
 
@@ -227,146 +212,188 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, query }) => 
         }
       });
 
-      // 2. Update Positions
+      // 2. Update positions
       nodes.forEach(node => {
         if (node !== dragNode.current) {
           node.x += node.vx;
           node.y += node.vy;
         }
-        
-        // Boundary bounce
-        if (node.x < 0 || node.x > width) node.vx *= -1;
-        if (node.y < 0 || node.y > height) node.vy *= -1;
+
+        // Wall bounce
+        if (node.x < 0 || node.x > width) {
+          node.vx *= -1;
+          node.x = Math.max(0, Math.min(width, node.x));
+        }
+        if (node.y < 0 || node.y > height) {
+          node.vy *= -1;
+          node.y = Math.max(0, Math.min(height, node.y));
+        }
       });
 
-      // 3. Draw Links
+      // 3. Draw links
       ctx.strokeStyle = theme.lineColor;
       ctx.lineWidth = 1;
       links.forEach(link => {
         const source = nodes.find(n => n.id === link.source);
         const target = nodes.find(n => n.id === link.target);
+        
         if (source && target) {
-            ctx.beginPath();
-            ctx.moveTo(source.x, source.y);
-            ctx.lineTo(target.x, target.y);
-            ctx.globalAlpha = 0.2;
-            ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(source.x, source.y);
+          ctx.lineTo(target.x, target.y);
+          ctx.globalAlpha = 0.2;
+          ctx.stroke();
         }
       });
       ctx.globalAlpha = 1;
 
-      // 4. Draw Nodes
+      // 4. Draw nodes
       nodes.forEach(node => {
-        // Glow
+        // Glow for ROOT
         if (node.type === NodeType.ROOT) {
-            const gradient = ctx.createRadialGradient(node.x, node.y, node.radius * 0.5, node.x, node.y, node.radius * 3);
-            gradient.addColorStop(0, theme.nodeColors.ROOT);
-            gradient.addColorStop(1, 'transparent');
-            ctx.fillStyle = gradient;
-            ctx.beginPath();
-            ctx.arc(node.x, node.y, node.radius * 3, 0, Math.PI * 2);
-            ctx.fill();
+          const gradient = ctx.createRadialGradient(
+            node.x, node.y, node.radius * 0.5,
+            node.x, node.y, node.radius * 3
+          );
+          gradient.addColorStop(0, theme.nodeColors.ROOT);
+          gradient.addColorStop(1, 'transparent');
+          ctx.fillStyle = gradient;
+          ctx.beginPath();
+          ctx.arc(node.x, node.y, node.radius * 3, 0, Math.PI * 2);
+          ctx.fill();
         }
 
-        // Shape
+        // Node shape
         ctx.fillStyle = node.color;
         ctx.beginPath();
         
         if (node.type === NodeType.GROUP) {
-            // Hexagon
-            const r = node.radius;
-            for (let i = 0; i < 6; i++) {
-                const angle = 2 * Math.PI / 6 * i;
-                const x = node.x + r * Math.cos(angle);
-                const y = node.y + r * Math.sin(angle);
-                if (i === 0) ctx.moveTo(x, y);
-                else ctx.lineTo(x, y);
-            }
-            ctx.closePath();
+          // Hexagon
+          const r = node.radius;
+          for (let i = 0; i < 6; i++) {
+            const angle = 2 * Math.PI / 6 * i;
+            const x = node.x + r * Math.cos(angle);
+            const y = node.y + r * Math.sin(angle);
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          }
+          ctx.closePath();
         } else if (node.type === NodeType.ANSWER) {
-            // Rect
-            ctx.rect(node.x - node.radius * 1.5, node.y - node.radius, node.radius * 3, node.radius * 2);
+          // Rectangle
+          ctx.rect(
+            node.x - node.radius * 1.5,
+            node.y - node.radius,
+            node.radius * 3,
+            node.radius * 2
+          );
         } else {
-            // Circle
-            ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
+          // Circle
+          ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
         }
-        
+
         ctx.shadowBlur = 15;
         ctx.shadowColor = node.color;
         ctx.fill();
         ctx.shadowBlur = 0;
 
-        // Text Label
+        // Highlight if selected
+        if (selectedNode?.id === node.id) {
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 3;
+          ctx.stroke();
+        }
+
+        // Text & icons
         ctx.fillStyle = theme.fontColor;
         ctx.font = `bold ${node.type === NodeType.ROOT ? 16 : 10}px "Space Grotesk", sans-serif`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         
-        // Clip label length if not hovered (simple optimization)
-        const label = node.label.length > 15 ? node.label.substring(0,12) + '...' : node.label;
+        const label = node.label.length > 15 ? node.label.substring(0, 12) + '...' : node.label;
         ctx.fillText(label, node.x, node.y + node.radius + 12);
-        
-        // Icons (Simple text based)
-        if(node.type === NodeType.USER) ctx.fillText("👤", node.x, node.y);
-        if(node.type === NodeType.GROUP) ctx.fillText("👥", node.x, node.y);
-        if(node.type === NodeType.ANSWER) ctx.fillText("💡", node.x, node.y - 15);
+
+        // Icons
+        if (node.type === NodeType.USER) ctx.fillText('👤', node.x, node.y);
+        if (node.type === NodeType.GROUP) ctx.fillText('👥', node.x, node.y);
+        if (node.type === NodeType.ANSWER) ctx.fillText('💡', node.x, node.y - 15);
       });
 
       requestRef.current = requestAnimationFrame(animate);
     };
 
     requestRef.current = requestAnimationFrame(animate);
-    return () => {
-        if (requestRef.current) cancelAnimationFrame(requestRef.current);
-    };
-  }, [isOpen, data]); // Only restart if data changes completely
 
-  // Mouse Handlers for Canvas
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (!data) return;
+    return () => {
+      if (requestRef.current) cancelAnimationFrame(requestRef.current);
+    };
+  }, [isOpen, selectedNode, PHYSICS]);
+
+  // Mouse handlers
+  const handleMouseDown = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
+    const { nodes } = physicsState.current;
+    if (nodes.length === 0) return;
+
     const rect = canvasRef.current!.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    
-    // Find clicked node
-    const clicked = data.nodes.find(n => {
-        const dist = Math.sqrt((n.x - x)**2 + (n.y - y)**2);
-        return dist < n.radius + 5;
+
+    const clicked = nodes.find(n => {
+      const dist = Math.sqrt((n.x - x) ** 2 + (n.y - y) ** 2);
+      return dist < n.radius + 5;
     });
 
     if (clicked) {
-        dragNode.current = clicked;
-        setSelectedNode(clicked);
-        setIsDragging(true);
+      dragNode.current = clicked;
+      setSelectedNode(clicked);
+      setIsDragging(true);
     } else {
-        setSelectedNode(null);
+      setSelectedNode(null);
     }
-  };
+  }, []);
 
-  const handleMouseMove = (e: React.MouseEvent) => {
-     const rect = canvasRef.current!.getBoundingClientRect();
-     const x = e.clientX - rect.left;
-     const y = e.clientY - rect.top;
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!isDragging || !dragNode.current || !canvasRef.current) return;
 
-     if (isDragging && dragNode.current) {
-         dragNode.current.x = x;
-         dragNode.current.y = y;
-         dragNode.current.vx = 0;
-         dragNode.current.vy = 0;
-     }
-  };
+    const rect = canvasRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
 
-  const handleMouseUp = () => {
-      setIsDragging(false);
-      dragNode.current = null;
-  };
+    dragNode.current.x = x;
+    dragNode.current.y = y;
+    dragNode.current.vx = 0;
+    dragNode.current.vy = 0;
+
+    // Emit to backend
+    if (socketRef.current) {
+      socketRef.current.emit('move_node', {
+        query,
+        nodeId: dragNode.current.id,
+        x,
+        y
+      });
+    }
+  }, [isDragging, query]);
+
+  const handleMouseUp = useCallback(() => {
+    setIsDragging(false);
+    dragNode.current = null;
+  }, []);
 
   if (!isOpen) return null;
+
+  // Loading state
+  if (!uiTheme) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black text-white">
+        <div className="animate-pulse text-2xl font-light">Syncing with Universe...</div>
+      </div>
+    );
+  }
 
   return (
     <div 
         className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden"
-        style={{ background: data?.theme.background || '#000' }}
+        style={{ background: uiTheme.background || '#000' }}
     >
       {/* Background floating particles (CSS) */}
       <div className="absolute inset-0 pointer-events-none opacity-30">
@@ -376,7 +403,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, query }) => 
                 style={{
                     left: `${Math.random()*100}%`, top: `${Math.random()*100}%`,
                     width: `${Math.random()*300}px`, height: `${Math.random()*300}px`,
-                    background: data?.theme.particleColor,
+                    background: uiTheme.particleColor,
                     filter: 'blur(60px)',
                     animationDuration: `${3 + Math.random()*5}s`
                 }}
@@ -401,7 +428,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, query }) => 
                   {query.toUpperCase()}
               </h1>
               <p className="text-white/70 mt-2 text-xl font-light italic">
-                  {data?.theme.vibeDescription}
+                  {uiTheme.vibeDescription}
               </p>
           </div>
           <button 
