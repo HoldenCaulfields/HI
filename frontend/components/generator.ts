@@ -1,5 +1,5 @@
 
-import { NodeType, ThemeConfig, UniverseData, GraphNode, GraphLink } from '../proversion/types';
+import { NodeType, ThemeConfig, UniverseData, GraphNode, GraphLink } from '../types/types';
 
 const getThemeForQuery = (query: string): ThemeConfig => {
   const q = query.toLowerCase().trim();

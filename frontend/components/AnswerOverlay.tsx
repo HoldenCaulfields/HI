@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { GraphNode, Comment } from '../proversion/types';
+import { GraphNode, Comment } from '../types/types';
 import { X, Heart, MessageCircle, Send, User, Share2 } from 'lucide-react';
 
 interface AnswerOverlayProps {
@@ -41,7 +41,7 @@ const AnswerOverlay: React.FC<AnswerOverlayProps> = ({ node, onClose }) => {
   };
 
   return (
-    <div className="absolute inset-0 z-[60] flex items-center justify-center p-4 pointer-events-auto">
+    <div className="absolute inset-0 z-60 flex items-center justify-center p-4 pointer-events-auto">
        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose}></div>
        
        <div className="bg-white w-full max-w-2xl max-h-[85vh] rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-[slideUp_0.3s_ease-out] relative z-10">

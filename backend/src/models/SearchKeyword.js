@@ -1,10 +1,12 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const SearchKeywordSchema = new mongoose.Schema({
-    _id: { type: String }, // keyword as id
-    count: { type: Number, default: 0 },
-    relatedGroups: { type: [mongoose.Schema.Types.ObjectId], default: [] },
-    topAnswers: { type: [mongoose.Schema.Types.ObjectId], default: [] }
+  keyword: { type: String, required: true, unique: true },
+  count: { type: Number, default: 1 },
+  lastSearched: { type: Date, default: Date.now },
+  trendPercentage: String // calculated periodically
 });
+
+SearchKeywordSchema.index({ count: -1 });
 
 export default mongoose.model('SearchKeyword', SearchKeywordSchema);

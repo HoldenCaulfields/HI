@@ -5,9 +5,8 @@ import {
   Users, TrendingUp, MessageCircle, Heart, UserPlus, Clock, Star, 
   Globe, Code, BookOpen, Film, Sparkles, Search
 } from "lucide-react";
-import HeroBackground from "./components/HeroBackground";
-import SearchModal from "./proversion/SearchModal";
-import SearchModal2 from "./components/SearchModal2";
+import HeroBackground from "@/components/HeroBackground";
+import SearchModal from "@/components/SearchModal";
 
 const ACTIVE_GROUPS = [
   {

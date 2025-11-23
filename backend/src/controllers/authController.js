@@ -36,5 +36,25 @@ async function register(req, res) {
     return res.json({ user: { id: user._id, username: user.username }, token });
 }
 
+/* async function login(req, res) {
+    const { username, password } = req.body;
+    const user = await User.findOne({ username });
+    if (!user || user.isGuest) {
+        return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    const valid = await bcrypt.compare(password, user.password);
+    if (!valid) {
+        return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    const token = jwt.sign(
+        { id: user._id, username: user.username },
+        process.env.JWT_SECRET,
+        { expiresIn: '7d' }
+    );
+
+    res.json({ token, user: { id: user._id, username: user.username } });
+} */
 
 export { guestLogin, register };

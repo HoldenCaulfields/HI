@@ -1,8 +1,18 @@
 import jwt from 'jsonwebtoken';
 import 'dotenv/config';
 
-function sign(user) {
-    return jwt.sign({ id: user._id, username: user.username }, process.env.JWT_SECRET, { expiresIn: '7d' });
+
+export default function sign(user) {
+    return jwt.sign(
+        { 
+            id: user._id, 
+            username: user.username 
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: user.isGuest ? '24h' : '7d' }
+    );
 }
 
-export default sign;
+export function verify(token) {
+    return jwt.verify(token, process.env.JWT_SECRET);
+}

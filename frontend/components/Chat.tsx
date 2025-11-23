@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Message, GraphNode, NodeType } from '../proversion/types';
+import { Message, GraphNode, NodeType } from '../types/types';
 import { Send, X, MoreVertical, Smile, Paperclip, ThumbsUp } from 'lucide-react';
 
 interface ChatOverlayProps {

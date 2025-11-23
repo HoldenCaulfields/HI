@@ -23,13 +23,57 @@ server.listen(PORT, () => {
     console.log(`HxI backend listening on port ${PORT}`);
 });
 
-/*     Endpoints
-- `POST /auth/guest` { username }
-- `POST /auth/register` { username, password }
-- `GET /search?q=...`
-- `GET /search/trending`
-- `GET /groups/trending`
-- `GET /groups/:id/messages`
-- `POST /groups/:id/messages` (auth required)
-- `POST /answers` (auth required)
-- `POST /answers/:id/like` (auth required) */
+/* API Endpoints Summary:
+Auth:
+POST /auth/guest          - Guest login
+POST /auth/register       - Register account
+
+Search:
+GET  /search?q=query      - Main search
+GET  /search/trending     - Trending keywords
+
+Groups:
+GET  /groups/trending     - List popular groups
+GET  /groups/:id/messages - Get group messages
+POST /groups/:id/messages - Send message (auth)
+
+Answers:
+POST /answers                  - Post answer (auth)
+POST /answers/:id/like         - Like answer (auth)
+POST /answers/:id/love         - Love answer (auth)
+POST /answers/:id/comment      - Comment (auth)
+GET  /answers/query/:query     - Get answers by query
+
+Users:
+GET  /users/top                - Top users by reputation
+GET  /users/:username          - User profile
+PATCH /users/profile           - Update profile (auth)
+
+Notifications:
+GET  /notifications            - Get notifications (auth)
+PATCH /notifications/:id/read  - Mark as read (auth)
+PATCH /notifications/read-all  - Mark all read (auth)
+
+Socket.IO Events:
+javascript// Client → Server
+join_universe(query)
+move_node({ query, nodeId, x, y })
+join_group({ groupId })
+send_group_message({ groupId, content, type })
+typing_group({ groupId, isTyping })
+join_private_chat({ targetUserId })
+send_private_message({ targetUserId, content })
+like_answer({ answerId, action })
+
+// Server → Client
+init_data({ nodes, links, theme })
+node_moved({ nodeId, x, y })
+group_history({ groupId, messages })
+receive_group_message(message)
+user_joined_group({ username, onlineCount })
+user_typing({ username, isTyping })
+private_chat_history({ messages })
+receive_private_message(message)
+answer_updated({ answerId, likesCount })
+user_online({ userId, username })
+user_offline({ userId }) */
