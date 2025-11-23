@@ -2,99 +2,36 @@
 
 import { useState } from "react";
 import {
-  Users, TrendingUp, MessageCircle, Heart, UserPlus, Clock, Star, 
-  Globe, Code, BookOpen, Film, Sparkles, Search
+  Users, TrendingUp, MessageCircle, Heart, UserPlus, Clock, Star,
+  Globe, Sparkles, Search
 } from "lucide-react";
 import HeroBackground from "@/components/HeroBackground";
 import SearchModal from "@/components/SearchModal";
+import { ThemeMap } from "@/components/ThemeBg";
 
-const ACTIVE_GROUPS = [
-  {
-    name: "Tech Enthusiasts 🚀",
-    description: "Discussing AI, Web3, and cutting-edge technologies",
-    members: 2847,
-    online: 234,
-    lastActive: "2 min ago",
-    messages: 1243,
-    image: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&h=300&fit=crop",
-    tags: ["tech", "ai", "innovation"]
-  },
-  {
-    name: "Career Connections 💼",
-    description: "Job opportunities, career advice, and professional networking",
-    members: 1923,
-    online: 187,
-    lastActive: "5 min ago",
-    messages: 892,
-    image: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=300&fit=crop",
-    tags: ["findjob", "career", "networking"]
-  },
-  {
-    name: "Make Friends 🌟",
-    description: "Connect with like-minded people and build friendships",
-    members: 3421,
-    online: 412,
-    lastActive: "just now",
-    messages: 2134,
-    image: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=400&h=300&fit=crop",
-    tags: ["makefriend", "social", "community"]
-  },
-  {
-    name: "Late Night Talks 🌙",
-    description: "For those who can't sleep or just want to chat",
-    members: 1567,
-    online: 289,
-    lastActive: "1 min ago",
-    messages: 3421,
-    image: "https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?w=400&h=300&fit=crop",
-    tags: ["boring", "lonely", "chat"]
-  }
-];
+const BG_GRADIENT_MAP = {
+  // Theme gốc
+  default: "bg-gradient-to-br from-indigo-50 via-purple-50 to-white",
+  findjob: "bg-gradient-to-br from-blue-50 via-indigo-50 to-white",
+  love: "bg-gradient-to-br from-rose-50 via-pink-50 to-white",
+  tech: "bg-gradient-to-br from-cyan-50 via-sky-50 to-white",
+  music: "bg-gradient-to-br from-fuchsia-50 via-purple-50 to-white",
+  movie: "bg-gradient-to-br from-orange-50 via-amber-50 to-white",
+  lonely: "bg-gradient-to-br from-slate-100 via-gray-100 to-white",
 
-const TRENDING_SEARCHES = [
-  { keyword: "findjob", count: 1243, trend: "+23%", emoji: "💼" },
-  { keyword: "makefriend", count: 987, trend: "+18%", emoji: "🤝" },
-  { keyword: "lonely", count: 756, trend: "+31%", emoji: "💭" },
-  { keyword: "lover", count: 654, trend: "+12%", emoji: "💕" },
-  { keyword: "boring", count: 543, trend: "+8%", emoji: "😴" },
-  { keyword: "advice", count: 432, trend: "+15%", emoji: "💡" }
-];
-
-const POPULAR_CATEGORIES = [
-  { title: "Technology", icon: Code, image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCokraLXdw_3W3JkyxbgoYgvV9DO2sMga_FeiDZSOCZTj9uqNTln_-Qbp1rn2ZDnAgYkWVtkLuBxPwDvLyb1ySjpm7mVe1nrlY0UgHjB84R7vAK5RTs4Yt74E_1cLZx_gyImVUvxQYK6TWAit0_SCBZPsVP2GKionOEzrK5H_XBspkMIg2FiQKukIwp6Tu6PmowkqYTyxB84dAQwlhUloTNuvfIVdLlMTpFdeIfmLkNBGE_KCdrHW12PSZ0P6aXKVlafqpel6VDAhc" },
-  { title: "Education", icon: BookOpen, image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCJQjzp8dfPKrHT_-tvpE_iLSuK7fqikleZ0svoDO87bsJbQGZnwL_sor--yo_FpTq4bG_xsFQXL1IOHwqlKwc9yIR43vp_9TBVj88Gj3ht-aHGPFd41OHTMH1gCfhC1y_cQ_lc0XIAKs7uaykZbOTTZY6eLH-TFvkNiJGBwErwXHHfIBxE3DSfWYd-9S4G_pWt22BbvQEPV4xiDNRv2_Uh1ILW7t7LjFwvH0V3AGRkLZLF0D4wjNteNUTDOyMfEEGUFSiwatCQ-jc" },
-  { title: "Entertainment", icon: Film, image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCC0AHWH9WKRNVkd7Rp-velSL0wfWsrB4WrrwyBlYv5BFWelG6tTIpFBJKz6_kEsnfFjZvLNSiScIdYkoZeRAMfYx0AYPgEdbea0ayOVtF2yMgDHtD_EoZuSsiVMPT2g87TEy03dMm_mPMZlQkHCWlxBpefFGTVkWldXNDrClPAugzc82IBhjZaAzoJQ5IvVrngbdejDJ1s58sXyDho6lHXSm_Qcvym6BRgwVE67_6xu5ocG1ezR_28FNJuh1H3L1lzau-VUZyCr1k" },
-  { title: "Lifestyle", icon: Heart, image: "https://lh3.googleusercontent.com/aida-public/AB6AXuB91i9pZQYS0SiIEJXq02wB2VsxtlUsNNa1AfzPKWZyr_Nxr5v3U_iTHow7LlvF5b2DCrtaPXh0J4jrpmWneYJOwSMBnxQYTkkd1QyYd9IIFqyLU2650zEWXGbUOFvnpYKra6aIR7udcAGLYZWTHDcfvodK82kBAwA4wG6g85HVH11-dJ5YjW-uBdqVNEYfWv2L2JpJrdqw2m8ikq9byCfKJGclbyL1gt6ZBwCxwEAtCPFMTje3cYLFnq4MFhffCUUpkSthh0lmics" },
-];
-
-const TOP_ANSWERS = [
-  {
-    question: "How to make friends online?",
-    answer: "Start by being genuine and showing interest in others. Join communities that align with your interests...",
-    author: "@sarah_connect",
-    votes: 847,
-    time: "2 hours ago"
-  },
-  {
-    question: "Best way to find remote jobs?",
-    answer: "Focus on building a strong portfolio, network on LinkedIn, and use specialized job boards like...",
-    author: "@career_guru",
-    votes: 623,
-    time: "5 hours ago"
-  },
-  {
-    question: "Feeling lonely at night?",
-    answer: "You're not alone! Join our late-night community where people share stories, play games, and...",
-    author: "@nightowl_sam",
-    votes: 512,
-    time: "1 hour ago"
-  }
-];
+  // Ví dụ thêm các tùy chọn khác (ví dụ: solid color)
+  solid_blue: "bg-blue-100",
+  dark_overlay: "bg-gray-800",
+  sunset: "bg-gradient-to-r from-yellow-300 to-red-400",
+};
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [showResults, setShowResults] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [bgtheme, setBgtheme] = useState('');
+  const themeData = ThemeMap[bgtheme] || ThemeMap["default"];
+  const themeKey = bgtheme as keyof typeof BG_GRADIENT_MAP;
+  const changeBackground = BG_GRADIENT_MAP[themeKey];
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
@@ -102,8 +39,14 @@ export default function Home() {
     }
   };
 
+  const handleTagClick = (tag: string) => {
+    const keyword = tag.split(' ')[0].toLowerCase();
+    setSearchQuery(keyword);
+    setBgtheme(keyword);
+  }
+
   return (
-    <div className="min-h-screen bg-linear-to-br from-indigo-50 via-white to-purple-50">
+    <div className={`min-h-screen bg-linear-to-br ${changeBackground}`}>
       {/* Animated Background: Modern & Luxury Aura */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
         <div className="absolute top-1/4 left-5 w-96 h-96 bg-teal-400/50 rounded-full filter blur-3xl opacity-15 animate-blob-slow"></div>
@@ -111,7 +54,7 @@ export default function Home() {
         <div className="absolute bottom-10 left-10 w-96 h-96 bg-purple-500/50 rounded-full filter blur-3xl opacity-15 animate-blob-slow animation-delay-4000"></div>
         <div className="absolute top-20 left-1/2 w-64 h-64 bg-blue-300/50 rounded-full filter blur-3xl opacity-10 animate-blob-slow animation-delay-6000"></div>
       </div>
-      <HeroBackground />
+      <HeroBackground theme={bgtheme} density="medium" />
 
       <div className="relative z-10">
         {/* Navigation */}
@@ -178,15 +121,16 @@ export default function Home() {
               </div>
               <div className="flex flex-wrap items-center justify-center gap-2 mt-4">
                 <span className="text-sm text-gray-500">Try:</span>
-                {["findjob 💼", "makefriend 🤝", "lonely 💭", "advice 🎯","love", "tech", "music", "movie"].map((tag, i) => (
+                {["findjob 💼", "love 💕", "tech 💻", "music 🎧", "lonely 💭", "movie 🎬", "advice 🎯"].map((tag, i) => (
                   <button
                     key={i}
-                    onClick={() => {setSearchQuery(tag.split(' ')[0]); setIsOpen(true);}}
+                    onClick={() => handleTagClick(tag)}
                     className="px-3 py-1.5 bg-white/80 backdrop-blur-sm hover:bg-white rounded-full text-sm font-medium text-gray-700 hover:text-orange-600 transition-all shadow-sm hover:shadow-md"
                   >
                     {tag}
                   </button>
                 ))}
+
               </div>
             </div>
           </div>
@@ -200,10 +144,11 @@ export default function Home() {
               </h2>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-              {TRENDING_SEARCHES.map((item, idx) => (
+              {themeData.trending.map((item, idx) => (
                 <button
                   key={idx}
-                  onClick={() => setSearchQuery(item.keyword)}
+                  onMouseDown={() => setSearchQuery(item.keyword)}
+                  onClick={() => handleSearch()}
                   className="bg-white/80 backdrop-blur-sm rounded-xl p-4 hover:shadow-xl transition-all border-2 border-gray-100 hover:border-orange-300 text-left group transform hover:-translate-y-1"
                 >
                   <div className="flex items-center justify-between mb-2">
@@ -227,7 +172,7 @@ export default function Home() {
               </h2>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {ACTIVE_GROUPS.map((group, idx) => (
+              {themeData.groups.map((group, idx) => (
                 <div
                   key={idx}
                   className="bg-white/80 backdrop-blur-sm rounded-xl overflow-hidden shadow-md hover:shadow-2xl transition-all border-2 border-gray-100  group cursor-pointer transform hover:-translate-y-1"
@@ -277,7 +222,7 @@ export default function Home() {
               </h2>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 px-4">
-              {POPULAR_CATEGORIES.map((category, index) => (
+              {themeData.categories.map((category, index) => (
                 <div key={index} className="relative group overflow-hidden rounded-xl shadow-lg cursor-pointer transform hover:scale-[1.03] transition-transform duration-300">
                   <img className="w-full h-40 object-cover group-hover:opacity-80 transition-opacity duration-300"
                     data-alt={category.title}
@@ -301,7 +246,7 @@ export default function Home() {
               </h2>
             </div>
             <div className="space-y-4 backdrop-blur-sm">
-              {TOP_ANSWERS.map((item, idx) => (
+              {themeData.answers.map((item, idx) => (
                 <div
                   key={idx}
                   className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all border border-gray-100"
@@ -350,8 +295,8 @@ export default function Home() {
 
       {/* The Cosmic Modal */}
       <SearchModal
-        isOpen={isOpen} 
-        onClose={() => setIsOpen(false)} 
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
         query={searchQuery}
       />
     </div>

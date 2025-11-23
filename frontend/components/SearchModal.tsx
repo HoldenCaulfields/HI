@@ -20,7 +20,6 @@ interface DesignSystem {
 }
 
 // --- Theme Implementation Generators ---
-
 const getTheme = (query: string): DesignSystem => {
   const q = query.toLowerCase();
 
@@ -223,63 +222,118 @@ const getTheme = (query: string): DesignSystem => {
     };
   }
 
-  // 4. MOVIE THEME: Cinematic, High Contrast (Black/Gold/Silver)
+  // 4. MOVIE THEME: Lord of the Rings / Rivendell (Ethereal Gold, Soft Green, Ancient)
   if (q.includes('movie') || q.includes('film') || q.includes('actor') || q.includes('cinema')) {
     return {
-      bgStart: '#000000',
-      bgEnd: '#1a1a1a',
-      font: "'Cinzel', serif",
-      primaryColor: '#ffd700',
-      accentColor: '#ffffff',
-      nodeBaseColor: '#111',
-      linkColor: 'rgba(255, 215, 0, 0.3)',
-      particleColor: '#fff',
+      bgStart: '#111812', // Deep Elven Green/Black
+      bgEnd: '#020402',
+      font: "'Cinzel', serif", // The perfect LOTR font
+      primaryColor: '#fcd34d', // Soft Gold (Ring/Sun)
+      accentColor: '#e2e8f0', // Mithril Silver
+      nodeBaseColor: '#1c1917',
+      linkColor: 'rgba(252, 211, 77, 0.15)', // Faint Gold
+      particleColor: '#fcd34d',
       drawBackground: (ctx, w, h, time) => {
-        // Film grain noise (simulated)
-        const amount = 500;
-        ctx.fillStyle = 'rgba(255,255,255,0.1)';
-        for (let i = 0; i < amount; i++) {
-          ctx.fillRect(Math.random() * w, Math.random() * h, 2, 2);
-        }
+         // Ethereal Mist & Magic Dust
+         const t = time * 0.0002;
+         
+         // 1. Subtle Fog Overlay (Gradients)
+         const grad = ctx.createRadialGradient(w/2, h, 0, w/2, h/2, w);
+         grad.addColorStop(0, 'rgba(16, 185, 129, 0.05)'); // Very faint emerald
+         grad.addColorStop(1, 'transparent');
+         ctx.fillStyle = grad;
+         ctx.fillRect(0,0,w,h);
 
-        // Spotlight
-        const grad = ctx.createRadialGradient(w / 2, 0, 0, w / 2, h / 2, h);
-        grad.addColorStop(0, 'rgba(255,255,255,0.1)');
-        grad.addColorStop(1, 'transparent');
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, w, h);
+         // 2. Floating "Embers" or "Fireflies" (Lothlórien vibe)
+         for(let i=0; i<40; i++) {
+             const x = (Math.sin(t + i * 1.1) * 0.5 + 0.5) * w;
+             const y = (Math.cos(t * 0.7 + i * 0.5) * 0.5 + 0.5) * h;
+             const size = Math.random() * 2;
+             const alpha = (Math.sin(t * 3 + i) + 1) * 0.3;
+             
+             ctx.beginPath();
+             ctx.arc(x, y, size, 0, Math.PI * 2);
+             ctx.fillStyle = `rgba(252, 211, 77, ${alpha})`; // Gold dust
+             ctx.fill();
+         }
       },
       drawNode: (ctx, node, isSelected) => {
-        // Spotlight circle style
-        const grad = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, node.radius);
-
-        if (node.type === NodeType.ROOT) {
-          grad.addColorStop(0, '#ffd700');
-          grad.addColorStop(1, '#b8860b');
-        } else {
-          grad.addColorStop(0, '#444');
-          grad.addColorStop(1, '#000');
-        }
-
-        ctx.fillStyle = grad;
-        ctx.strokeStyle = '#ffd700';
-        ctx.lineWidth = isSelected ? 4 : 1;
+        // Ancient / Jewelry aesthetic
+        const isRoot = node.type === NodeType.ROOT;
 
         ctx.beginPath();
+        // Base
         ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
+        
+        if (isRoot) {
+             // THE ONE RING Visual
+             ctx.fillStyle = '#000'; // Empty void center
+             ctx.fill();
+             
+             // Gold glow
+             ctx.shadowBlur = 25;
+             ctx.shadowColor = '#fcd34d';
+             ctx.strokeStyle = '#fcd34d';
+             ctx.lineWidth = 4;
+             ctx.stroke();
+             ctx.shadowBlur = 0;
 
-        // Lens flare reflection
-        ctx.beginPath();
-        ctx.ellipse(node.x - node.radius / 2, node.y - node.radius / 2, node.radius / 3, node.radius / 5, Math.PI / 4, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(255,255,255,0.3)';
-        ctx.fill();
+             // Elvish script hint (faint inner ring)
+             ctx.beginPath();
+             ctx.arc(node.x, node.y, node.radius - 4, 0, Math.PI * 2);
+             ctx.strokeStyle = 'rgba(252, 211, 77, 0.4)';
+             ctx.lineWidth = 1;
+             ctx.stroke();
+
+        } else if (node.type === NodeType.ANSWER) {
+             // PALANTIR / Crystal
+             const grad = ctx.createRadialGradient(node.x - 5, node.y - 5, 2, node.x, node.y, node.radius);
+             grad.addColorStop(0, '#f1f5f9'); // Reflection
+             grad.addColorStop(0.3, '#64748b');
+             grad.addColorStop(1, '#0f172a'); // Deep dark
+             ctx.fillStyle = grad;
+             ctx.fill();
+             
+             // Silver Rim
+             ctx.strokeStyle = isSelected ? '#fcd34d' : '#94a3b8';
+             ctx.lineWidth = isSelected ? 3 : 1;
+             ctx.stroke();
+        } else {
+             // Standard Nodes: Dark stone with rune markings
+             ctx.fillStyle = '#27272a'; // Zinc 800
+             ctx.fill();
+             
+             ctx.strokeStyle = isSelected ? '#fcd34d' : '#52525b';
+             ctx.lineWidth = 1.5;
+             ctx.stroke();
+             
+             // Tiny "Rune" in center (Decorative diamond)
+             ctx.fillStyle = isSelected ? '#fcd34d' : '#52525b';
+             ctx.beginPath();
+             ctx.moveTo(node.x, node.y - 4);
+             ctx.lineTo(node.x + 3, node.y);
+             ctx.lineTo(node.x, node.y + 4);
+             ctx.lineTo(node.x - 3, node.y);
+             ctx.fill();
+        }
       },
       drawLink: (ctx, s, t) => {
+        // Art Nouveau / Elven Curves (No straight lines)
+        const midX = (s.x + t.x) / 2;
+        const midY = (s.y + t.y) / 2 - 20 * (s.x < t.x ? 1 : -1); // Gentle arc
+        
         ctx.beginPath();
         ctx.moveTo(s.x, s.y);
-        ctx.lineTo(t.x, t.y);
+        ctx.quadraticCurveTo(midX, midY, t.x, t.y);
+        
+        // Gradient Fade
+        const grad = ctx.createLinearGradient(s.x, s.y, t.x, t.y);
+        grad.addColorStop(0, 'rgba(252, 211, 77, 0)');
+        grad.addColorStop(0.5, 'rgba(252, 211, 77, 0.3)'); // Gold center
+        grad.addColorStop(1, 'rgba(252, 211, 77, 0)');
+        
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = 1.5;
         ctx.stroke();
       }
     };
@@ -348,25 +402,94 @@ const getTheme = (query: string): DesignSystem => {
 
   // DEFAULT (Fallback)
   return {
-    bgStart: '#171717',
-    bgEnd: '#000000',
-    font: "'Inter', sans-serif",
-    primaryColor: '#ffffff',
-    accentColor: '#a3a3a3',
-    nodeBaseColor: '#262626',
-    linkColor: 'rgba(255,255,255,0.2)',
-    particleColor: '#ffffff',
-    drawBackground: () => { },
+    bgStart: '#0f172a', // Deep slate blue
+    bgEnd: '#020617',   // Almost black
+    font: "'Space Grotesk', sans-serif",
+    primaryColor: '#ffffff', // Amber/Gold for "Sparks"
+    accentColor: '#38bdf8',  // Sky Blue for "Logic"
+    nodeBaseColor: '#1e293b',
+    linkColor: 'rgba(255, 255, 255, 0.15)',
+    particleColor: '#f59e0b',
+    drawBackground: (ctx, w, h, time) => {
+      // Dynamic Constellation / Neural Background
+      const t = time * 0.0002;
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.03)';
+      
+      // Draw floating geometric shapes
+      for(let i=0; i<15; i++) {
+        const x = (Math.sin(t + i) * 0.5 + 0.5) * w;
+        const y = (Math.cos(t * 1.3 + i * 2) * 0.5 + 0.5) * h;
+        const size = (Math.sin(t * 2 + i) + 2) * 100;
+        
+        ctx.beginPath();
+        // Rotating triangles/shapes
+        const angle = t + i;
+        for(let j=0; j<3; j++) {
+            const a = angle + (j * Math.PI * 2) / 3;
+            const px = x + Math.cos(a) * size;
+            const py = y + Math.sin(a) * size;
+            j === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+        }
+        ctx.closePath();
+        ctx.fill();
+      }
+    },
     drawNode: (ctx, node, isSelected) => {
-      ctx.fillStyle = node.type === NodeType.ROOT ? '#fff' : '#404040';
-      ctx.beginPath();
-      ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
-      ctx.fill();
+        // Creative "Idea Bulb" look
+        const isRoot = node.type === NodeType.ROOT;
+        
+        // Glow
+        if (isSelected || isRoot) {
+            const glowColor = isRoot ? '#f59e0b' : '#38bdf8';
+            const grad = ctx.createRadialGradient(node.x, node.y, node.radius * 0.5, node.x, node.y, node.radius * 2.5);
+            grad.addColorStop(0, glowColor);
+            grad.addColorStop(1, 'transparent');
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.arc(node.x, node.y, node.radius * 2.5, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // Main Body
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
+        ctx.fillStyle = isRoot ? '#f59e0b' : '#1e293b'; // Amber root, Dark Blue children
+        ctx.fill();
+        
+        // Stroke
+        ctx.lineWidth = isSelected ? 3 : 2;
+        ctx.strokeStyle = isRoot ? '#fff' : (node.type === NodeType.ANSWER ? '#fbbf24' : '#38bdf8');
+        ctx.stroke();
+
+        // Creative Inner Pattern (Dot in center)
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, isRoot ? 4 : 2, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Orbiting electron for Answer nodes
+        if (node.type === NodeType.ANSWER || isSelected) {
+             const t = Date.now() * 0.003;
+             const orbitR = node.radius + 6;
+             const ox = node.x + Math.cos(t) * orbitR;
+             const oy = node.y + Math.sin(t) * orbitR;
+             
+             ctx.beginPath();
+             ctx.arc(ox, oy, 3, 0, Math.PI * 2);
+             ctx.fillStyle = isRoot ? '#fff' : '#fbbf24';
+             ctx.fill();
+        }
     },
     drawLink: (ctx, s, t) => {
       ctx.beginPath();
       ctx.moveTo(s.x, s.y);
       ctx.lineTo(t.x, t.y);
+      // Gradient line
+      const grad = ctx.createLinearGradient(s.x, s.y, t.x, t.y);
+      grad.addColorStop(0, 'rgba(56, 189, 248, 0.1)'); // Blue
+      grad.addColorStop(0.5, 'rgba(245, 158, 11, 0.3)'); // Amber center
+      grad.addColorStop(1, 'rgba(56, 189, 248, 0.1)'); // Blue
+      ctx.strokeStyle = grad;
       ctx.stroke();
     }
   };
