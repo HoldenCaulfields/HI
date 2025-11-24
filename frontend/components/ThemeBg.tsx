@@ -584,3 +584,19 @@ export const ThemeMap: Record<string, ThemeConfig> = {
   boring: DEFAULT_DATA,
   movie: LONELY_DATA // Reuse lonely/movie data for now
 };
+
+export const BG_GRADIENT_MAP = {
+  // Theme gốc
+  default: "bg-gradient-to-br from-indigo-50 via-purple-50 to-white",
+  findjob: "bg-gradient-to-br from-blue-50 via-indigo-50 to-white",
+  love: "bg-gradient-to-br from-rose-50 via-pink-50 to-white",
+  tech: "bg-gradient-to-br from-cyan-50 via-sky-50 to-white",
+  music: "bg-gradient-to-br from-fuchsia-50 via-purple-50 to-white",
+  movie: "bg-gradient-to-br from-orange-50 via-amber-50 to-white",
+  lonely: "bg-gradient-to-br from-slate-100 via-gray-100 to-white",
+
+  // Ví dụ thêm các tùy chọn khác (ví dụ: solid color)
+  solid_blue: "bg-blue-100",
+  dark_overlay: "bg-gray-800",
+  sunset: "bg-gradient-to-r from-yellow-300 to-red-400",
+};
